@@ -1,0 +1,39 @@
+
+[]    "   []      - Print characters until next ", ! will act as cr/lf
+[]    0-9 [n]     - push number, will build 32-bit number
+[]    A-Z [n]     - push variable number (0-25)
+[]    a-z [n]     - push variable number (26-51)
+[n]   !   []      - Pop number from stack and print it
+[n]   !'  []      - Pop number from stack and print as ASCII
+[a b] +   [n]     - Addition
+[a b] -   [n]     - Subtraction
+[a b] *   [n]     - Multiplication
+[a b] /   [n]     - Division
+[a b] \   [n]     - Remainder
+[]    ?   [n]     - Input integer
+[]    ?'  [n]     - Input character
+[]    '   [n]     - Push next character to stack
+[]    (   []      - Begin loop
+[]    )   []      - End loop
+[a]   .   [n]     - Retrieve variable value
+[v a] :   []      - Store value into variable
+[y x] =   [b]     - Push 1 if y=x else 0
+[y x] <   [b]     - Push 1 if y<x else 0
+[y x] >   [b]     - Push 1 if y>x else 0
+[b]   ^   []      - Exit loop if false
+[b]   [   []      - Start of conditional statement (tos > 0)
+[]    |   []      - Else portion of conditional statement
+[]    ]   []      - End of conditional statement
+[]    $   []      - End program
+[]    {   []      - Enable tracing
+[]    }   []      - Disable tracing
+[]    ~   []      - Remark until end of line
+[]    #   []      - Begin macro call
+[]    ,   []      - End of macro parameter
+[]    ;   []      - End of macro call
+[]    $letter     - Define macro
+[n]   %   []      - Retrieve macro parameter
+[]    @   []      - Return from macro
+
+Variables:
+  0-65535 - A-Z=0-25, a-z=26-51

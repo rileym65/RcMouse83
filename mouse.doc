@@ -1,0 +1,384 @@
+                                   Rc/Mouse-83
+                                       by
+                                Michael H. Riley
+     
+       Mouse is a small programming language developed by Dr. Peter Grogono
+     in 1979 and then extended in 1983.  Mouse was designed to be a simple
+     language for limited space systems.  Its syntax and structure makes
+     for a very small interpreter that could be developed for small
+     microprocessor-based systems.
+     
+       Mouse is a stack-oriented langauge, similar to Forth, which uses RPN
+     (Reverse Polish Notation) for operations.  If you are unfamiliar with
+     RPN, essentially it is a system where the arguments to a function are
+     pushed to the stack before the operation itself is performed. For
+     example, if you wanted to add 3 and 5, the syntax in Mouse would be '3
+     5 +' rather than the '3+5' you see in more algebraic languages.
+     
+       Rc/Mouse-83 makes a few small changes to the official spec for the
+     language.  First, variable names and macro names are case-insensitive,
+     giving you 26 variables and up to 26 macros.  In Rc/Mouse, variable
+     names and macros are case sensitive, giving you 52 named variables and
+     up to 52 macros.  Additinally variable space allocates 65536
+     variables, addressable by number.  Variables 0-25 are the named A-Z
+     variables, variables 26-51 are the named a-z variables, all variable
+     numbers 52 and up are addressable only by number.
+     
+       Why this language in this day and age?  Mainly because I have an
+     interest in retro-computing, working with early computers (or
+     emulations of them) and working with early languages and tools.  I
+     find it fascinating to experience the early days of computers and this
+     often adds insight into how computers work today.  If you have an
+     interest in early computing then this language is worth a passing
+     glance.  Mouse was not a major language and not very well known, but
+     it is elegant for a small language that could be implemented easily on
+     small computers of it's day.
+     
+       This manual will describe how to program in this language.  Other
+     than the differences mentioned above, Rc/Mouse-83 conforms to the
+     Mouse-83 spec and programs written for another Mouse-83 interpreter
+     should run fine on Rc/Mouse-83.  If you stick to only upper-case
+     variable and macro names then programs written for Rc/Mouse-83 should
+     run fine on other Mouse-83 interpreters.  Also note that the extended
+     variable memory (variable numbers above 25) are generally not
+     supported on other Mouse-83 interpreters and should not be used if
+     portability is desired.
+     
+     Getting Started
+     ===============
+     
+       Rc/Mouse-83 is a Mouse program interpreter, it does not provide
+     program editing capability.  Programs intended to run on Rc/Mouse-83
+     need to be created and edited in an external editor.  As long as the
+     editor prodcues clean, clear ASCII text then it will work for working
+     on Rc/Mouse-83 programs.
+     
+       Lets start with usual first program most people do when learning a
+     new languate, Hello world!.  Create a new file 'hello.m' with this
+     contents:
+     
+         "Hello world!" $
+       
+       You can run this program with this command line:
+     
+         mouse hello.m
+       
+       And you will see the 'Hello world' message.  You will notice that
+     the '!' character was not printed.  The '!' character has a special
+     meaning inside of printed strings, it causes the terminal to move to a
+     new line.
+     
+       This program uses only 2 Mouse commands, the first is the '"'
+     command, which will print everthing up til the next '"' out to the
+     terminal.  So, whenever you want to print some text to the terminal
+     all you need to do is enclose it in quote (") marks.  Our program then
+     ends with the '$' command, which causes the program to end.
+     
+       Before we continue, lets look quickly at Mouse's program structure,
+     in essence there is not any.  Program commands consist of 1 (and
+     sometimes 2) bytes that are executed from left to right and top to
+     bottom.  White space (spaces, tabs, newlines, carriage returns) are
+     all ignored by the intrepreter and with only a single exception are
+     not required at all.  The only time white space is needed is when two
+     different numbers are being pushed to the stack.  Earlier I gave the
+     example of '3 5 +'.  The space between the 3 and the 5 is required so
+     that the interpreter knows you want to push a 3 and then push a 5,
+     without this space the interpreter would push 35.  The space between
+     the 5 and the + is not actually needed, you could just used '3 5+'.
+     White space can of course be used anytime you want to add visual
+     structure to make programs easier to read, so in the case of '3 5 +',
+     it could be written like this, or with no space after the 5, or even
+     3, 5, and + all on separate lines, it makes no difference to the
+     interpeter.
+     
+       Another thing to note about Mouse's structure is that in most cases
+     commands are completely independent of each other, there is generally
+     no syntax that needs to be learned.  There are a few commands that
+     look like there is syntactic structure, but when we discuss those
+     commands you will see that in reality, there is no syntax structure at
+     all.
+     
+     Arithmetic
+     ==========
+     
+       Now lets take a look at how to do math in Mouse.  Lets start with a
+     very simple program (You can put this in math.m):
+     
+         3 5 + ! "!" $
+       
+       When you run this program, you will just get '8' on the output, the
+     result of adding 3 and 5.  Lets now walk through this program a step
+     at a time so that you will understand exactly what happens. First is
+     the command '3', which pushes 3 onto the stack, next comes the command
+     '5', which pushes 5 onto the stack.  Next comes the '+' command, this
+     command will take two values off the stack, add them together and then
+     put the result back on the stack.  Next is the '!' command, this
+     command will take the top value off the stack and print it to the
+     terminal.  Everything else was discuessed above.
+     
+       This is a good example of how there is no syntactic structure.  The
+     '+' command does not look at anything before or after it, all it cares
+     about is that there are two values on the stack when it is executed.
+     To show this more dramatically, create this program as 'structure.m':
+     
+         3 7 9 + ! 5 " " + ! "!" $
+       
+       This program will print out '16 8'.  Between the 3 and 5 we have '7
+     9 + !', which is printing the 16, then the 5, followed by the '" "'
+     which is printing the space after the 16, before we finally have the
+     second '+' command which will now finally add the 3 and 5 to get 8.
+     This sample clearly shows how the second '+' command has no syntactic
+     connecion to anything else.  Now, this is also a good example of how
+     NOT to write your code!  This sample is very convoluted and hard to
+     follow, it was merely a way of demonstrating how commands have no
+     relationship to what is on either side of them.
+     
+       Lets try out a few more math commands, change your 'math.m' program
+     to look like this:
+     
+       "3 + 5 = " 3 5 + ! "!"
+       "3 - 5 = " 3 5 - ! "!"
+       "3 * 5 = " 3 5 * ! "!"
+       "5 / 3 = " 5 3 / ! "!"
+       "5 % 3 = " 5 3 \ ! "!"
+       $
+       
+       There should not be any real surprises here, most all of these
+     commands we have already used, the new ones are '-', '*', '/', and
+     '\', which provide the rest of the basic math operations.
+     
+       Lets look at one last example.  Since there is no algebraic
+     structure for mathematic commands, there is also no order of
+     precedence, so if you wanted to compute: (1+2) * (3+4), you have to
+     think about how would you do it manually, and then structure your
+     program to how you would do it manually.  If you remember back to math
+     class you would solve this equation by first adding 1 to 2 to get 3,
+     then add 3 to 4 to get 7 and then finally multiply 3 by 7 to get the
+     final answer of 21.  Here is how you would program it in Mouse:
+     
+       1 2 +     ~ first do (1+2)
+       3 4 +     ~ next do (3+4)
+       *         ~ Now multiplay both the above results
+       ! "!"     ~ print the final result
+       $         ~ and exit
+       
+       Go ahead and run this program to see the final result of '21'. This
+     program also demonstrates how you can use white space and separate
+     lines to make your programs more readable.  This program also
+     introduces the '~' marker.  When the program reader encounteres a '~'
+     character, the rest of the line is ignored, this is how you can add
+     comments on what your program is doing.
+     
+     Variables
+     =========
+     
+       Up til now we have been using the stack as storage space, but since
+     the stack only allows us to push things on top of the stack or to take
+     things off the top of the stack, it is not very useful when you need
+     longer term storage than what the immediate commands need. This is
+     where variables come in.  Mouse provides 26 variables, named 'A'
+     through 'Z'.  Traditional Mouse interpreters, the variable names are
+     not case sensitive, 'a' is the same variable as 'A'.  In Rc/Mouse,
+     variable names are case-sensitive, so you now have 52 named variables,
+     'A' through 'Z' and 'a' through 'z'.
+     
+       To store a value into a variable you need to use the ':' command,
+     and to retrieve a value from a variable you use the '.' command. Lets
+     start with a simple program, 'variables.m':
+     
+       5 A:    ~ Store 5 into variable A
+       3 B:    ~ Store 3 into variable B
+       A. B. + ~ Add contents of A and B, result is on the stack
+       C:      ~ Store result into C
+       C. !    ~ Retrieve contents of C and print
+       "!"     ~ New line
+       $       ~ and exit
+       
+       The ':' command will take two values off of the stack, the top value
+     is the address of a variable and then the second from the top is the
+     value to be stored.  Something to understand here is that when the
+     interpreter ran across the 'A' in the first line, this is actually not
+     the name of a variable, but rather a command called 'A' and when it
+     executes it places the address of the 'A' variable onto the stack, in
+     the case of 'A', the value of '0' is pushed onto the stack, 'B' would
+     push 1, and 'C' would push 2. With this in mind, this sequence '3 1:'
+     is exactly the same as '3 B:'!  The variable names of 'A' through 'Z'
+     and 'a' through 'z' all work this way, they simply push their address
+     onto the stack.
+     
+       The '.' command is how the value of a variable is retrieved, it
+     expects to find a single value on the stack, the address of the
+     variable to retrieve, it then retrieves the value at that variable
+     address and puts it onto the stack.
+     
+       In this sample program I used no white space between the ':' and '.'
+     commands and the variable names they are working with, this is merely
+     a style choice, as to me it is more readable to think of these as
+     connected operations, but in reality 'A:' can also be written as 'A :'
+     or even have other commands between the 'A' and ':' commands, such as:
+     '5 A 1 2 + ! :'.  This sequence would still store the value of 5 into
+     the A variable, and because of the embedded '1 2 + !', also print 3 on
+     the terminal.  This is another bad example of how you should write
+     your programs, but another good example of how there is no syntactic
+     link between different commands.
+     
+       As mentioned earlier, standard Mouse has just 26 variables, Rc/Mouse
+     has 52 named variables, and a total variable store of 65,536
+     variables!  We saw how the variable name commands just put an address
+     on the stack, you can use any number between 0 and 65535 as a variable
+     address, so this program makes use of the variable space above the
+     named ones:
+     
+       5 1000:     ~ Store 5 into variable cell 1000
+       3 1001:     ~ Store 3 into variable cell 1001
+       1000. 1001. ~ Retrieve both variables 1000 and 1001
+       + ! "!"     ~ Add contents and print
+       $           ~ Exit
+       
+       Since using variables places their addresses on the stack, it
+     becomes possible to use variables as pointers to other variables, try
+     this program as 'ptr.m':
+     
+       0 C:        ~ Clear C
+       C A:        ~ Set A as a pointer to C
+       5 A.:       ~ Indirectly store 5 into C
+       C. ! "!"    ~ Print C to see that 5 is there
+       7 C:        ~ Now set C to 7
+       A.. ! "!"   ~ Indirectly print the contents of C
+       $
+       
+       On line 3, we have this '5 A.:' which ultimately writes 5 into C.
+     Line 2 is the key to this, the 'C A:' sequence will end up writing the
+     address of the 'C' variable into the 'A' variable. Now now look at the
+     'A.:' seuqence, 'A' puts the address of the 'A' variable on the stack,
+     then the '.' command reads the A variable, which contains the address
+     of the 'C' variable, and now address of the 'C' variable is on the
+     stack when the ':' command writes 5, which is how 5 ended up in the
+     'C' variable.
+     
+       So there are two useful sequences to remember '.:' will store a
+     value into a variable being pointed to by another variable, and '..'
+     will retrieve the value of a variable being pointed to by another
+     variable.  Remember, there is still NO syntactic connection with these
+     two sequences, in both of them each command is still completely
+     separate, it just happens to be that what these commands do make them
+     act like pointer references when used together.
+     
+     Making Decisions
+     ================
+     
+       Most all programming languages contain IF/THEN commands for
+     conditional execution, Mouse is no exception to this.  Lets start with
+     this sample:
+     
+       1 [ "Will be printed" ] $
+     
+       When you execute this program you will see on the terminal "Will be
+     printed".  There are two new commands here, first is the '[' command,
+     which is like other language's IF command.  The '[' command will take
+     a number off the top of the stack, and if it is positive then it will
+     execute the code following the '[' command.  If the number is zero or
+     negative, then all commands between the '[' and its matching ']'
+     command are ignored.  Try this program:
+     
+       0 [ "Will not be printed" ] $
+     
+       When you run this, you will get no output.  Since when '[' was
+     executed the top of stack had the value of '0', so everything between
+     the '[' and its matching ']' was ignored.
+     
+       Most languages also add an ELSE command to their IF/THEN structure
+     which allows one set of commands to be executed when the condition is
+     true, and a different set of commands for when the condition is false.
+     Mouse has this as well, try this program:
+     
+       1 [ "true" | "false" ] $
+     
+       When you run this program you will see the word "true" printed on
+     the terminal, and not see the world "false".  Now try changing the
+     program to this:
+     
+       0 [ "true" | "false" ] $
+     
+       Now you will see only the world "false".  The '|' command is what
+     separates the commands to be executed when true, from the commands to
+     be executed when false.  When the '[' command sees a 0 or negative
+     number on the stack it starts searching for its matching ']' command,
+     if it happens to find a '|' command then it will stop searching and
+     continue executing with the command following the '|' symbol.
+     Whenever the 'true' portion is being executed and it runs into a '|'
+     command, then it stops executing commands until a matching ']' is
+     found, and then execution continues after that.
+     
+       It is also possible to nest conditionals, take a look at this
+     program:
+     
+       0 A: A. [ "positive" | 0 A. - [ "negative" | "zero" ]] "!"
+       1 A: A. [ "positive" | 0 A. - [ "negative" | "zero" ]] "!"
+       0 1 - A: A. [ "positive" | 0 A. - [ "negative" | "zero" ]] "!"
+       $
+       
+       There is nothing new in this program, so you should be able to work
+     out how it gets its results.
+     
+       Now that we have a way of conditionally executing code, we need to
+     be able make the decisions that lead to execution of conditional code.
+     This is done with conditional operators.  There are 3 of them: '<',
+     '>', and '='.  Lets try the first one:
+     
+       3 5 < [ "true" | "false" ] "!" $
+     
+       This will print "true" since 3 is less than 5.  Try this one:
+     
+       3 5 > [ "true" | "false" ] "!" $
+     
+       This will print "false" since 3 is not greater than 5.  And finally
+     try this one:
+     
+       3 5 = [ "true" | "false" ] "!" $
+     
+       Which will also print "false" since 3 is not equal to 5.
+     
+       Try playing around with the values of these simple little programs
+     until you are comfortable with exactly how conditional execution works
+     in Mouse.
+     
+     Language Summary
+     ================
+     
+     []     "        []   Print characters until next ", ! will act as     
+                          cr/lf                                            
+     []     0-9      [n]  push number, will build 32-bit number            
+     []     A-Z      [n]  push variable number (0-25)                      
+     []     a-z      [n]  push variable number (26-51)                     
+     [a]    .        [n]  Retrieve variable value                          
+     [v a]  :        []   Store value into variable                        
+     [n]    !        []   Pop number from stack and print it               
+     [n]    !'       []   Pop number from stack and print as ASCII         
+     [a b]  +        [n]  Addition                                         
+     [a b]  -        [n]  Subtraction                                      
+     [a b]  *        [n]  Multiplication                                   
+     [a b]  /        [n]  Division                                         
+     [a b]  \        [n]  Remainder                                        
+     []     ?        [n]  Input integer                                    
+     []     ?'       [n]  Input character                                  
+     []     '        [n]  Push next character to stack                     
+     []     (        []   Begin loop                                       
+     [b]    ^        []   Exit loop if false                               
+     []     )        []   End loop                                         
+     [y x]  =        [b]  Push 1 if y=x else 0                             
+     [y x]  <        [b]  Push 1 if y<x else 0                             
+     [y x]  >        [b]  Push 1 if y>x else 0                             
+     [b]    [        []   Start of conditional statement (tos > 0)         
+     []     |        []   Else portion of conditional statement            
+     []     ]        []   End of conditional statement                     
+     []     $        []   End program                                      
+     []     {        []   Enable tracing                                   
+     []     }        []   Disable tracing                                  
+     []     ~        []   Remark until end of line                         
+     []     #        []   Begin macro call                                 
+     []     ,        []   End of macro parameter                           
+     []     ;        []   End of macro call                                
+     []     $letter       Define macro                                     
+     [n]    %        []   Retrieve macro parameter                         
+     []     @        []   Return from macro                                
