@@ -24,3 +24,7 @@ clean:
 	-rm *.o
 	-rm $(PROJECT)
 
+install:
+	cp mouse /usr/local/bin/
+	chmod a+x /usr/local/bin/mouse
+
