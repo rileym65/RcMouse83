@@ -343,6 +343,79 @@
      until you are comfortable with exactly how conditional execution works
      in Mouse.
      
+     Looping
+     =======
+     
+       Next lets take a look at how looping works in Mouse, lets start with
+     this program:
+     
+       1 N:            ~ Starting count
+       (               ~ Start loop
+         N. ! " "      ~ Print current loop count
+         N. 1 + N:     ~ Increment count
+         N. 11 < ^     ~ Exit loop when N gets to 11
+       )               ~ End of loop
+       "!"             ~ Print carriage return
+       $
+       
+       Most of this should be looking pretty familiar by now, but there are
+     three new commands: '(', ')', and '^'.  The '(' command is the
+     beginning of a loop, in and of itself it does not do much accept to
+     mark where a loop begins.  The ')' command is used at the end of a
+     loop.  When the interpreter encounters a ')' command, it moves
+     execution back to where the matching '(' command id.
+     
+       The '^' command is how a loop gets exited.  When the '^' command is
+     executed, it pops a value from the stack and if it is 0 then the loop
+     is terminated, the interpreter will search for the closing ')' command
+     of the current loop and continue execution after that marker.  If the
+     value popped by '^' is non-zero then execution continues inside of the
+     loop.  Note that a loop can have only 1 set of boundary markers, but
+     may have as many '^' commands as needed.  Also note that the '^' can
+     appear anywhere inside of the boundary markers, if the exit test
+     appears at the beginning of a loop then the loop will act like the
+     traditional WHILE loop, whereas if the test occurs at the end of the
+     loop then the loop will act more like the traditional REAPEAT loop.
+     
+       It is also possible to nest loops.  Here is a sample program that
+     generates the multiplaction table using nested loops:
+     
+       1 Y:                  ~ Start on row 1
+       (                     ~ Start of row loop
+         1 X:                ~ New row starts at column 1
+         (                   ~ Start of column loop
+           X. Y. * A:        ~ Multply X by Y giving A
+           A. 100 < [ " " ]  ~ Need leading space if less than 100
+           A. 10 < [ " " ]   ~ Need another if less than 10
+           A. ! " "          ~ Print multiplied value
+           X. 1 + X:         ~ Increment X
+           X. 11 < ^         ~ Exit from loop when X equals 11
+         )                   ~ End of column loop
+         "!"                 ~ Move to next line
+         Y. 1 + Y:           ~ Increment Y
+         Y. 11 < ^           ~ Exit from loop when Y equals 11
+       )                     ~ End of row loop
+       $                     ~ Exit program
+       
+       Note that the '^' command only exits the loop that encloses the '^'
+     command, an outer loop is unaffected by the ending of an inner loop.
+     
+     User Input
+     ==========
+     
+       Mouse programs can also request input from the user, here is a
+     sample program:
+     
+       "Enter a number"      ~ A prompt for the user
+       ?                     ~ Ask user for a number
+       2 * ! "!"             ~ Double it and print it
+       $                     ~ End program
+       
+       The '?' command will show a '?' on the screen and then wait for the
+     user to provide input, Rc/Mouse will accept any positive or negative
+     32-bit integer in response to this prompt.  The number the user enters
+     will be pushed to the stack.
+     
      Language Summary
      ================
      
